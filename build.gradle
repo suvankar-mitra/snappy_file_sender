@@ -1,35 +1,48 @@
 plugins {
     id 'java'
     id 'application'
-    id 'org.openjfx.javafxplugin' version '0.0.7'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
 }
 
-group 'com.suvankarmitra'
-version '1.0-SNAPSHOT'
+group = 'com.suvankarmitra'
+version = '1.0-SNAPSHOT'
 
-sourceCompatibility = 1.8
+// Use your system JDK but compile for Java 8 compatibility
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile 'com.jfoenix:jfoenix:8.0.8' // Java 8
-    compile 'com.jfoenix:jfoenix:9.0.8' // Java 9
-    compile group: 'commons-validator', name: 'commons-validator', version: '1.4.0'
+    testImplementation 'junit:junit:4.13.2'
+    implementation 'commons-validator:commons-validator:1.7'
+
+    // Using JFoenix 9 because you are likely running on JDK 11+
+    // even if source compatibility is set to 1.8
+    implementation 'com.jfoenix:jfoenix:9.0.10'
 }
 
 javafx {
-    version = "12.0.1"
+    version = "17.0.10"
     modules = [ 'javafx.controls', 'javafx.fxml' ]
 }
 
-startScripts {
-    doLast{
-        unixScript.text = unixScript.text.replace('DEFAULT_JVM_OPTS=', 'DEFAULT_JVM_OPTS=--module-path ../lib --add-modules javafx.controls,javafx.fxml')
-        windowsScript.text = windowsScript.text.replace('DEFAULT_JVM_OPTS=', 'DEFAULT_JVM_OPTS=--module-path ../lib --add-modules javafx.controls,javafx.fxml')
-    }
+application {
+    // Remember to create the Launcher.java class mentioned in the previous step!
+    mainClass = 'com.suvankarmitra.Launcher'
 }
 
-mainClassName = 'com.suvankarmitra.MainApp'
+tasks.named('startScripts') {
+    doLast {
+        if (unixScript.exists()) {
+            unixScript.text = unixScript.text.replace('DEFAULT_JVM_OPTS=""', 'DEFAULT_JVM_OPTS="--module-path ../lib --add-modules javafx.controls,javafx.fxml"')
+        }
+        if (windowsScript.exists()) {
+            windowsScript.text = windowsScript.text.replace('set DEFAULT_JVM_OPTS=', 'set DEFAULT_JVM_OPTS=--module-path ../lib --add-modules javafx.controls,javafx.fxml')
+        }
+    }
+}
